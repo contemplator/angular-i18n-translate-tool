@@ -1,0 +1,20 @@
+.flex {
+  display: flex;
+  &.flex-justify {
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+label {
+  height: 32px;
+  line-height: 32px;
+}
+
+input[type='file'] {
+  height: 32px;
+}
+
+td input{
+  width: 100%;
+}

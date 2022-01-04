@@ -12,6 +12,7 @@ export class AppComponent implements OnInit {
   fileContent: any;
   transList: TransItem[] = [];
   scrollHeight = '600px';
+  filename = '';
 
   ngOnInit() {
     this.scrollHeight = (window.innerHeight - 168) + 'px';
@@ -19,11 +20,11 @@ export class AppComponent implements OnInit {
 
   onFileUpload(event): void {
     const file = event.target.files[0];
+    this.filename = file.name;
     let fileReader = new FileReader();
     fileReader.onload = (e) => {
       const xmlContent = fileReader.result;
-      this.parseToJson(xmlContent);
-      console.log(xmlContent);
+      this.parseToJson(xmlContent as string);
     }
     fileReader.readAsText(file);
   }
@@ -32,18 +33,20 @@ export class AppComponent implements OnInit {
     xml2js.parseString(xml, (err, result) => {
       this.fileContent = result;
       this.transList = this.fileContent.xliff.file[0].body[0]['trans-unit'].map(item => {
-        item.target = [];
+        if (!item.target) {
+          item.target = [];
+        }
         return item;
       });
+      console.error(this.transList);
     });
   }
 
   onExportClick(): void {
     let content = this.parseToXlf();
-    console.log(content);
     let link = window.document.createElement("a");
     link.setAttribute("href", "data:text;charset=utf-8," + encodeURI(content));
-    link.setAttribute("download", "test.xlf");
+    link.setAttribute("download", this.filename);
     link.click();
   }
 
@@ -65,10 +68,17 @@ export class AppComponent implements OnInit {
           <context context-type="sourcefile">${item['context-group'][0].context[0]._}</context>
           <context context-type="linenumber">${item['context-group'][0].context[1]._}</context>
         </context-group>
+        <note priority="1" from="description">${item.note[0]._}</note>
+        <note priority="1" from="meaning">${item.note[1]._}</note>
         <target>${item.target[0]}</target>
       </trans-unit>`;
     });
     return header + content + footer;
+  }
+
+  getFilePath(path: string): string {
+    const startIndex = path.indexOf('app/');
+    return path.substring(startIndex + 4);
   }
 }
 

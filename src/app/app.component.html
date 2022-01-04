@@ -15,7 +15,8 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Id</th>
-        <th>位置</th>
+        <!-- <th>位置</th> -->
+        <th>意義</th>
         <th>說明</th>
         <th>原始字樣</th>
         <th>翻譯結果</th>
@@ -24,17 +25,18 @@
     <ng-template pTemplate="body" let-item>
       <tr>
         <td>{{item.$.id}}</td>
+        <!-- <td>
+          <ng-container *ngIf="item['context-group']">{{getFilePath(item['context-group'][0].context[0]._)}}</ng-container>
+        </td> -->
         <td>
-          <span *ngIf="item['context-group']">
-            <div>檔案：{{item['context-group'][0].context[0]._}}</div>
-            <div>行數：{{item['context-group'][0].context[1]._}}</div>
-          </span>
+          <ng-container *ngIf="item.note && item.note[0]">
+            {{item.note[0]._}}
+          </ng-container>
         </td>
         <td>
-          <span *ngIf="item.note">
-            <div *ngIf="item.note[0]">說明：{{item.note[0]._}}</div>
-            <div *ngIf="item.note[1]">摘要：{{item.note[1]._}}</div>
-          </span>
+          <ng-container *ngIf="item.note && item.note[1]">
+            {{item.note[1]._}}
+          </ng-container>
         </td>
         <td>
           <span>

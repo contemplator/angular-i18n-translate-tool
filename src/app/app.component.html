@@ -5,7 +5,10 @@
     選擇檔案
     <input type="file" (change)="onFileUpload($event)">
   </label>
-  <button pButton (click)="onExportClick()" label="匯出"></button>
+  <div>
+    <button pButton (click)="onGoogleTranslateClick()" label="Google 翻譯"></button>
+    <button pButton (click)="onExportClick()" label="匯出"></button>
+  </div>
 </div>
 
 <hr>

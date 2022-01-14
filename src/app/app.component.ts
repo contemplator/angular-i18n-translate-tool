@@ -14,13 +14,21 @@ export class AppComponent implements OnInit {
   transList: TransItem[] = [];
   scrollHeight = '600px';
   filename = '';
+  // 比較用的檔案
+  transListCompare: TransItem[] = [];
+  compareFileUpload = false;
 
   constructor(
     private translateService: GoogleTranslateService
   ) { }
 
   ngOnInit() {
-    this.scrollHeight = (window.innerHeight - 168) + 'px';
+    const headerElement = document.querySelector('#header');
+    if (headerElement) {
+      const headerHeight = headerElement.clientHeight;
+      const bodyMargin = 8 * 2;
+      this.scrollHeight = (window.innerHeight - headerHeight - bodyMargin) + 'px';
+    }
   }
 
   onFileUpload(event): void {
@@ -100,6 +108,40 @@ export class AppComponent implements OnInit {
 
   parseEscapeCharacter(str: string): string {
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '%27');
+  }
+
+  onFileCompareUpload(event): void {
+    const file = event.target.files[0];
+    let fileReader = new FileReader();
+    fileReader.onload = (e) => {
+      const xmlContent = fileReader.result;
+      xml2js.parseString(xmlContent, (err, result) => {
+        this.transListCompare = result.xliff.file[0].body[0]['trans-unit'].map(item => {
+          if (!item.target) {
+            item.target = [];
+          }
+          return item;
+        });
+      });
+      this.compareTranslateContent();
+    }
+    fileReader.readAsText(file);
+  }
+
+  compareTranslateContent(): void {
+    this.transListCompare.forEach(citem => {
+      const citemId = citem.$.id;
+      const citemTarget = citem.target[0];
+
+      const existItem = this.transList.find(item=>{
+        const itemId = item.$.id;
+        return citemId === itemId;
+      });
+
+      if(existItem && citemTarget){
+        existItem.target = citem.target;
+      }
+    });
   }
 }
 
